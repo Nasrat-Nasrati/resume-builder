@@ -1,0 +1,209 @@
+import type { IEmployeeItem } from 'src/types/employee';
+
+import { useBoolean, usePopover } from 'minimal-shared/hooks';
+
+import Box from '@mui/material/Box';
+import Link from '@mui/material/Link';
+import Stack from '@mui/material/Stack';
+import Button from '@mui/material/Button';
+import Avatar from '@mui/material/Avatar';
+import Tooltip from '@mui/material/Tooltip';
+import MenuList from '@mui/material/MenuList';
+import MenuItem from '@mui/material/MenuItem';
+import TableRow from '@mui/material/TableRow';
+import Checkbox from '@mui/material/Checkbox';
+import TableCell from '@mui/material/TableCell';
+import IconButton from '@mui/material/IconButton';
+
+import { RouterLink } from 'src/routes/components';
+
+import { Label } from 'src/components/label';
+import { Iconify } from 'src/components/iconify';
+import { ConfirmDialog } from 'src/components/custom-dialog';
+import { CustomPopover } from 'src/components/custom-popover';
+
+// ----------------------------------------------------------------------
+
+type Props = {
+  row: IEmployeeItem;
+  selected: boolean;
+  onSelectRow: () => void;
+  onDeleteRow: () => void;
+  onEditRow: () => void; // این خط را اضافه کنید
+  editHref: string;
+  viewHref: string; // NEW: Destructure viewHref
+};
+
+export function EmployeeTableRow({ row, selected, editHref, viewHref, onSelectRow, onDeleteRow }: Props) {
+  const menuActions = usePopover();
+  const confirmDialog = useBoolean();
+
+  const renderMenuActions = () => (
+    <CustomPopover
+      open={menuActions.open}
+      anchorEl={menuActions.anchorEl}
+      onClose={menuActions.onClose}
+      slotProps={{ arrow: { placement: 'right-top' } }}
+    >
+      <MenuList>
+
+         <li>
+          <MenuItem component={RouterLink} href={viewHref} onClick={() => menuActions.onClose()}>
+            <Iconify icon="solar:eye-bold" />
+             Details
+          </MenuItem>
+        </li>
+
+        <li>
+          <MenuItem component={RouterLink} href={editHref} onClick={() => menuActions.onClose()}>
+            <Iconify icon="solar:pen-bold" />
+            Edit
+          </MenuItem>
+        </li>
+
+        <MenuItem
+          onClick={() => {
+            confirmDialog.onTrue();
+            menuActions.onClose();
+          }}
+          sx={{ color: 'error.main' }}
+        >
+          <Iconify icon="solar:trash-bin-trash-bold" />
+          Delete
+        </MenuItem>
+      </MenuList>
+    </CustomPopover>
+  );
+
+  const renderConfirmDialog = () => (
+    <ConfirmDialog
+      open={confirmDialog.value}
+      onClose={confirmDialog.onFalse}
+      title="Delete"
+      content="Are you sure want to delete?"
+      action={
+        <Button variant="contained" color="error" onClick={onDeleteRow}>
+          Delete
+        </Button>
+      }
+    />
+  );
+
+  const statusColor = ((): 'success' | 'warning' | 'error' | 'info' | 'default' => {
+    switch (String(row.status)) {
+      case 'active':
+        return 'success';
+      case 'inactive':
+        return 'error';
+      case 'on-leave':
+        return 'warning';
+      case 'terminated':
+        return 'error';
+      case 'probation':
+        return 'info';
+      default:
+        return 'default';
+    }
+  })();
+
+  return (
+    <>
+      <TableRow hover selected={selected} aria-checked={selected} tabIndex={-1}>
+        <TableCell padding="checkbox">
+          <Checkbox
+            checked={selected}
+            onClick={onSelectRow}
+            inputProps={{
+              id: `${row.id}-checkbox`,
+              'aria-label': `${row.id} checkbox`,
+            }}
+          />
+        </TableCell>
+
+        {/* Employee Name */}
+
+        <TableCell>
+          <Box sx={{ gap: 2, display: 'flex', alignItems: 'center' }}>
+            <Avatar alt={row.fullName} sx={{ bgcolor: 'primary.main' }}>
+              {row.firstName?.charAt(0)}{row.lastName?.charAt(0)}
+            </Avatar>
+            <Stack sx={{ typography: 'body2', flex: '1 1 auto', alignItems: 'flex-start' }}>
+              {/* CHANGED: Link now goes to viewHref (details page) instead of editHref */}
+              <Link
+                component={RouterLink}
+                href={viewHref} // CHANGED: from editHref to viewHref
+                color="inherit"
+                sx={{ cursor: 'pointer' }}
+              >
+                {row.fullName}
+              </Link>
+              <Box sx={{ typography: 'caption', color: 'text.disabled' }}>
+                {row.email}
+              </Box>
+            </Stack>
+          </Box>
+        </TableCell>
+
+        
+        {/* <TableCell>
+          <Box sx={{ gap: 2, display: 'flex', alignItems: 'center' }}>
+            <Avatar alt={row.fullName} sx={{ bgcolor: 'primary.main' }}>
+              {row.firstName.charAt(0)}{row.lastName.charAt(0)}
+            </Avatar>
+            <Stack sx={{ typography: 'body2', flex: '1 1 auto', alignItems: 'flex-start' }}>
+              <Link
+                component={RouterLink}
+                href={editHref}
+                color="inherit"
+                sx={{ cursor: 'pointer' }}
+              >
+                {row.fullName}
+              </Link>
+              <Box sx={{ typography: 'caption', color: 'text.disabled' }}>
+                {row.email}
+              </Box>
+            </Stack>
+          </Box>
+        </TableCell> */}
+
+        {/* Phone */}
+        <TableCell>
+          {row.phone}
+        </TableCell>
+
+        {/* Position */}
+        <TableCell>
+          {row.jobTitle}
+        </TableCell>
+
+        {/* Company */}
+        <TableCell>
+          {row.companyName}
+        </TableCell>
+
+        {/* Status */}
+        <TableCell>
+          <Label variant="soft" color={statusColor}>
+            {row.status}
+          </Label>
+        </TableCell>
+
+        {/* Actions */}
+        <TableCell>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            {/* More Actions Menu */}
+            <IconButton
+              color={menuActions.open ? 'inherit' : 'default'}
+              onClick={menuActions.onOpen}
+            >
+              <Iconify icon="eva:more-vertical-fill" />
+            </IconButton>
+          </Box>
+        </TableCell>
+      </TableRow>
+
+      {renderMenuActions()}
+      {renderConfirmDialog()}
+    </>
+  );
+}
