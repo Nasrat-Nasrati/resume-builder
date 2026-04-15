@@ -7,6 +7,7 @@ class CustomUser(AbstractUser):
     daily_generation_count = models.IntegerField(default=0)
     last_generation_date = models.DateField(null=True, blank=True)
     plan_limit = models.IntegerField(default=5)  # 5 for free, 20 for premium
+    is_verified = models.BooleanField(default=False)
 
     def __str__(self):
         return self.username

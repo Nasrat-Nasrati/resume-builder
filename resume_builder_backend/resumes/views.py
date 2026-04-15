@@ -8,7 +8,7 @@ from .utils.generators import generate_pdf, generate_docx
 
 from .models import (
     Template, Resume, PersonalInfo, Education, Experience,
-    Project, Skill, Certificate
+    Project, Skill, Certificate, Language
 )
 from .serializers import (
     TemplateSerializer,

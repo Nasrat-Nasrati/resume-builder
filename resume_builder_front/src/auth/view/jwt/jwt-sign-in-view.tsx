@@ -12,7 +12,7 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import InputAdornment from '@mui/material/InputAdornment';
 
 import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hooks';
+import { useRouter, useSearchParams } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
 
 import { Iconify } from 'src/components/iconify';
@@ -39,6 +39,8 @@ export const SignInSchema = zod.object({
 
 export function JwtSignInView() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const verified = searchParams.get('verified') === 'true';
 
   const showPassword = useBoolean();
 
@@ -66,7 +68,7 @@ export function JwtSignInView() {
       await signInWithPassword({ identifier: data.identifier, password: data.password });
       await checkUserSession?.();
 
-      router.refresh();
+      router.push(paths.dashboard.root);
     } catch (error) {
       console.error(error);
       const feedbackMessage = getErrorMessage(error);
@@ -149,6 +151,12 @@ export function JwtSignInView() {
         {' with password '}
         <strong>{defaultValues.password}</strong> to Sign in to MUDH
       </Alert>
+
+      {verified && (
+        <Alert severity="success" sx={{ mb: 3 }}>
+          User activated! You can now log in to your account.
+        </Alert>
+      )}
 
       {!!errorMessage && (
         <Alert severity="error" sx={{ mb: 3 }}>

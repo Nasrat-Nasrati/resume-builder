@@ -51,6 +51,7 @@ export function JwtSignUpView() {
   const { checkUserSession } = useAuthContext();
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const defaultValues: SignUpSchemaType = {
     firstName: 'Hello',
@@ -77,9 +78,8 @@ export function JwtSignUpView() {
         firstName: data.firstName,
         lastName: data.lastName,
       });
-      await checkUserSession?.();
-
-      router.refresh();
+      setIsSubmitted(true);
+      setErrorMessage(null);
     } catch (error) {
       console.error(error);
       const feedbackMessage = getErrorMessage(error);
@@ -160,11 +160,19 @@ export function JwtSignUpView() {
         </Alert>
       )}
 
-      <Form methods={methods} onSubmit={onSubmit}>
-        {renderForm()}
-      </Form>
+      {isSubmitted ? (
+        <Alert severity="success" sx={{ mb: 3 }}>
+          Registration successful! Please check your email address for the verification link.
+        </Alert>
+      ) : (
+        <>
+          <Form methods={methods} onSubmit={onSubmit}>
+            {renderForm()}
+          </Form>
 
-      <SignUpTerms />
+          <SignUpTerms />
+        </>
+      )}
     </>
   );
 }

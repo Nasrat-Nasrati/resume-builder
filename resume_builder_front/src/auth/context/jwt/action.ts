@@ -41,23 +41,17 @@ export async function login({ username, password }: LoginParams): Promise<User> 
     password,
   });
 
-  // بک‌اند در پاسخ چیزی شبیه این برمی‌گرداند:
-  // { "id_token": "eyJhbGciOiJIUzUxMiJ9..." }
-  const { id_token } = response.data;
+  // Django SimpleJWT برمی‌گرداند: { "access": "...", "refresh": "..." }
+  const { access } = response.data;
 
-  if (!id_token) {
-    // اگر ساختار پاسخ عوض شده باشد، این کمک می‌کند زود بفهمی
-    throw new Error('No id_token returned from API');
+  if (!access) {
+    throw new Error('No access token returned from API');
   }
 
   // توکن را ذخیره و روی axios ست کن
-  setSession(id_token);
+  setSession(access);
 
-  // اگر بک‌اند یوزر را هم برگرداند، استفاده می‌کنیم؛
-  // در غیر این صورت حداقل username را ذخیره می‌کنیم.
   const user: User = response.data.user ?? { username };
-
-  // ذخیره‌ی یوزر در localStorage (اختیاری)
   localStorage.setItem('user', JSON.stringify(user));
 
   return user;
@@ -89,8 +83,18 @@ export async function signInWithPassword(
 export async function signUp(
   params: SignInWithPasswordParams
 ): Promise<User> {
-  // اگر بعداً بک‌اند signup واقعی داشتی، اینجا عوضش می‌کنی
-  return signInWithPassword(params);
+  const { email, username, password, firstName, lastName } = params;
+
+  const response = await axios.post(endpoints.auth.register, {
+    username: username || email,
+    email,
+    password,
+    password_confirm: password, // بک‌بند این را می‌خواهد
+    first_name: firstName,
+    last_name: lastName,
+  });
+
+  return response.data;
 }
 
 // ---------------------------------------

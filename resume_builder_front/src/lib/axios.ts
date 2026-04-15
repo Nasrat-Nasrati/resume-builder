@@ -50,10 +50,10 @@ export const endpoints = {
   kanban: '/api/kanban',
   calendar: '/api/calendar',
   auth: {    
-    me: '/api/account',          // ✅ پروفایل کاربر لاگین شده (JHipster)
-    signIn: '/api/authenticate', // ✅ لاگین
-    signUp: '/api/auth/sign-up',
-    changePassword: '/api/users/change-password',
+    me: '/api/auth/me/',
+    signIn: '/api/auth/login/',
+    signUp: '/api/auth/register/',
+    changePassword: '/api/auth/reset-password/',
   },
   users: {
     all: '/api/users/all',

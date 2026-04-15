@@ -40,7 +40,7 @@ export default defineConfig({
     host: true,
     proxy: {
       '/api': {
-        target: 'http://localhost:8080', // 🔹 بک‌اند داکر روی لوکال
+        target: 'http://localhost:8000', // 🔹 بک‌اند جنگو روی لوکال
         changeOrigin: true,
       },
     },
