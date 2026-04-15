@@ -1,110 +1,81 @@
-import type { FabProps } from '@mui/material/Fab';
-import type { UseBackToTopReturn } from 'minimal-shared/hooks';
-
-import { useBackToTop } from 'minimal-shared/hooks';
-
-import Fab from '@mui/material/Fab';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Container from '@mui/material/Container';
+import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
-import SvgIcon from '@mui/material/SvgIcon';
-
-import { ScrollProgress, useScrollProgress } from 'src/components/animate/scroll-progress';
-
-import { HomeHero } from '../home-hero';
-import { HomeFAQs } from '../home-faqs';
-import { HomeZoneUI } from '../home-zone-ui';
-import { HomeMinimal } from '../home-minimal';
-import { HomePricing } from '../home-pricing';
-import { HomeForDesigner } from '../home-for-designer';
-import { HomeTestimonials } from '../home-testimonials';
-import { HomeIntegrations } from '../home-integrations';
-import { HomeAdvertisement } from '../home-advertisement';
-import { HomeHugePackElements } from '../home-hugepack-elements';
-import { HomeHighlightFeatures } from '../home-highlight-features';
-
-// ----------------------------------------------------------------------
+import Typography from '@mui/material/Typography';
+import { useTheme } from '@mui/material/styles';
+import { RouterLink } from 'src/routes/components';
 
 export function HomeView() {
-  const pageProgress = useScrollProgress();
-
-  const { onBackToTop, isVisible } = useBackToTop('90%');
+  const theme = useTheme();
 
   return (
     <>
-      <ScrollProgress
-        variant="linear"
-        progress={pageProgress.scrollYProgress}
-        sx={[(theme) => ({ position: 'fixed', zIndex: theme.zIndex.appBar + 1 })]}
-      />
+      <Box
+        sx={{
+          py: 15,
+          position: 'relative',
+          background: 'linear-gradient(to right bottom, #103783, #9bafd9)',
+          color: 'common.white',
+          textAlign: 'center',
+          overflow: 'hidden',
+        }}
+      >
+        <Container>
+          <Typography variant="h2" sx={{ mb: 3, fontWeight: 'fontWeightBold' }}>
+            Create a Professional Afghan Civil Service Resume in 5 Minutes.
+          </Typography>
+          <Typography variant="h6" sx={{ mb: 5, opacity: 0.8, maxWidth: 640, mx: 'auto' }}>
+            Empowering Afghan Job Seekers with standardized, bilingual (Dari/Pashto & English) resumes perfectly tailored for Civil Service and Private Sector.
+          </Typography>
+          <Button
+            component={RouterLink}
+            href="/auth/jwt/sign-up"
+            size="large"
+            variant="contained"
+            color="primary"
+            sx={{ px: 4, py: 1.5, fontSize: '1.1rem' }}
+          >
+            Build Free CV Now
+          </Button>
+        </Container>
+      </Box>
 
-      <BackToTopButton isVisible={isVisible} onClick={onBackToTop} />
-
-      <HomeHero />
-
-      <Stack sx={{ position: 'relative', bgcolor: 'background.default' }}>
-        <HomeMinimal />
-
-        <HomeHugePackElements />
-
-        <HomeForDesigner />
-
-        <HomeHighlightFeatures />
-
-        <HomeIntegrations />
-
-        <HomePricing />
-
-        <HomeTestimonials />
-
-        <HomeFAQs />
-
-        <HomeZoneUI />
-
-        <HomeAdvertisement />
-      </Stack>
+      <Box sx={{ py: 10, bgcolor: 'background.default' }}>
+        <Container>
+          <Typography variant="h3" sx={{ textAlign: 'center', mb: 8 }}>
+            📊 Live Platform Statistics
+          </Typography>
+          
+          <Grid container spacing={4} justifyContent="center">
+            <Grid item xs={12} sm={6} md={3}>
+              <Stack alignItems="center" spacing={1}>
+                <Typography variant="h2" color="primary">1,245</Typography>
+                <Typography variant="subtitle1" color="text.secondary">CVs Created Today</Typography>
+              </Stack>
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <Stack alignItems="center" spacing={1}>
+                <Typography variant="h2" color="info.main">89,432</Typography>
+                <Typography variant="subtitle1" color="text.secondary">Total CVs Created</Typography>
+              </Stack>
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <Stack alignItems="center" spacing={1}>
+                <Typography variant="h2" color="warning.main">312</Typography>
+                <Typography variant="subtitle1" color="text.secondary">Active Premium Members</Typography>
+              </Stack>
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <Stack alignItems="center" spacing={1}>
+                <Typography variant="h2" color="success.main">45k+</Typography>
+                <Typography variant="subtitle1" color="text.secondary">Page Views This Month</Typography>
+              </Stack>
+            </Grid>
+          </Grid>
+        </Container>
+      </Box>
     </>
-  );
-}
-
-// ----------------------------------------------------------------------
-
-type BackToTopProps = FabProps & {
-  isVisible: UseBackToTopReturn['isVisible'];
-};
-
-function BackToTopButton({ isVisible, sx, ...other }: BackToTopProps) {
-  return (
-    <Fab
-      aria-label="Back to top"
-      sx={[
-        (theme) => ({
-          width: 48,
-          height: 48,
-          position: 'fixed',
-          transform: 'scale(0)',
-          right: { xs: 24, md: 32 },
-          bottom: { xs: 24, md: 32 },
-          zIndex: theme.zIndex.speedDial,
-          transition: theme.transitions.create(['transform']),
-          ...(isVisible && { transform: 'scale(1)' }),
-        }),
-        ...(Array.isArray(sx) ? sx : [sx]),
-      ]}
-      {...other}
-    >
-      <SvgIcon>
-        {/* https://icon-sets.iconify.design/solar/double-alt-arrow-up-bold-duotone/ */}
-        <path
-          fill="currentColor"
-          d="M5 17.75a.75.75 0 0 1-.488-1.32l7-6a.75.75 0 0 1 .976 0l7 6A.75.75 0 0 1 19 17.75z"
-          opacity="0.5"
-        />
-        <path
-          fill="currentColor"
-          fillRule="evenodd"
-          d="M4.43 13.488a.75.75 0 0 0 1.058.081L12 7.988l6.512 5.581a.75.75 0 1 0 .976-1.138l-7-6a.75.75 0 0 0-.976 0l-7 6a.75.75 0 0 0-.081 1.057"
-          clipRule="evenodd"
-        />
-      </SvgIcon>
-    </Fab>
   );
 }

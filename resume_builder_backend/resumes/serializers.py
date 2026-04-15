@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import (
     Template, Resume, PersonalInfo, Education, Experience,
-    Project, Skill, Certificate
+    Project, Skill, Certificate, Language
 )
 
 
@@ -53,6 +53,13 @@ class CertificateSerializer(serializers.ModelSerializer):
         read_only_fields = ['resume']
 
 
+class LanguageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Language
+        fields = '__all__'
+        read_only_fields = ['resume']
+
+
 class ResumeListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Resume
@@ -66,6 +73,7 @@ class ResumeDetailSerializer(serializers.ModelSerializer):
     projects = ProjectSerializer(many=True, read_only=True)
     skills = SkillSerializer(many=True, read_only=True)
     certificates = CertificateSerializer(many=True, read_only=True)
+    languages = LanguageSerializer(many=True, read_only=True)
     template = TemplateSerializer(read_only=True)
 
     class Meta:

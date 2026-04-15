@@ -9,6 +9,8 @@ from .views import (
     ProjectListCreateView, ProjectDetailView,
     SkillListCreateView, SkillDetailView,
     CertificateListCreateView, CertificateDetailView,
+    LanguageListCreateView, LanguageDetailView,
+    DownloadPDFView, DownloadDOCXView,
 )
 
 urlpatterns = [
@@ -49,4 +51,13 @@ urlpatterns = [
     path('resumes/<int:resume_id>/certificates/', CertificateListCreateView.as_view(),
          name='certificate-list-create'),
     path('certificates/<int:pk>/', CertificateDetailView.as_view(), name='certificate-detail'),
+
+    # Languages
+    path('resumes/<int:resume_id>/languages/', LanguageListCreateView.as_view(),
+         name='language-list-create'),
+    path('languages/<int:pk>/', LanguageDetailView.as_view(), name='language-detail'),
+
+    # Exports
+    path('resumes/<int:resume_id>/download/pdf/', DownloadPDFView.as_view(), name='download-pdf'),
+    path('resumes/<int:resume_id>/download/docx/', DownloadDOCXView.as_view(), name='download-docx'),
 ]

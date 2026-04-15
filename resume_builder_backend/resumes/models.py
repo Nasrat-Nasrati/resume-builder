@@ -66,6 +66,13 @@ class PersonalInfo(models.Model):
     github_url = models.URLField(blank=True)
     other_links = models.TextField(blank=True)
 
+    # Afghan Context Fields
+    fathers_name = models.CharField(max_length=150, blank=True)
+    tazkira_number = models.CharField(max_length=50, blank=True)
+    province = models.CharField(max_length=100, blank=True)
+    district = models.CharField(max_length=100, blank=True)
+    profile_picture = models.ImageField(upload_to="profile_pics/", null=True, blank=True)
+
     def __str__(self):
         return self.full_name
 
@@ -157,6 +164,29 @@ class Skill(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Language(models.Model):
+    LEVEL_CHOICES = [
+        ("MOTHER_TONGUE", "Mother Tongue"),
+        ("PROFESSIONAL", "Professional"),
+        ("BASIC", "Basic"),
+    ]
+
+    resume = models.ForeignKey(
+        Resume,
+        on_delete=models.CASCADE,
+        related_name="languages"
+    )
+    name = models.CharField(max_length=100) # Dari, Pashto, English, Uzbeki, etc.
+    level = models.CharField(max_length=20, choices=LEVEL_CHOICES, blank=True)
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["order", "name"]
+
+    def __str__(self):
+        return f"{self.name} ({self.level})"
 
 
 class Certificate(models.Model):

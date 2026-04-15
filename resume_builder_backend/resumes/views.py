@@ -1,7 +1,10 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.http import HttpResponse
+from datetime import date
+from .utils.generators import generate_pdf, generate_docx
 
 from .models import (
     Template, Resume, PersonalInfo, Education, Experience,
@@ -12,7 +15,7 @@ from .serializers import (
     ResumeListSerializer, ResumeDetailSerializer,
     PersonalInfoSerializer, EducationSerializer,
     ExperienceSerializer, ProjectSerializer,
-    SkillSerializer, CertificateSerializer
+    SkillSerializer, CertificateSerializer, LanguageSerializer
 )
 
 
@@ -185,3 +188,77 @@ class CertificateDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         return Certificate.objects.filter(resume__user=self.request.user)
+
+
+# ------- LANGUAGES -------
+class LanguageListCreateView(generics.ListCreateAPIView):
+    serializer_class = LanguageSerializer
+
+    def get_queryset(self):
+        resume_id = self.kwargs['resume_id']
+        return Language.objects.filter(resume__id=resume_id, resume__user=self.request.user)
+
+    def perform_create(self, serializer):
+        resume_id = self.kwargs['resume_id']
+        resume = get_object_or_404(Resume, id=resume_id, user=self.request.user)
+        serializer.save(resume=resume)
+
+
+class LanguageDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Language.objects.all()
+    serializer_class = LanguageSerializer
+
+    def get_queryset(self):
+        return Language.objects.filter(resume__user=self.request.user)
+
+# ------- GENERATION & EXPORT -------
+class BaseDownloadView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def check_and_update_limits(self, user):
+        today = date.today()
+        if user.last_generation_date != today:
+            user.last_generation_date = today
+            user.daily_generation_count = 0
+            
+        if user.daily_generation_count >= user.plan_limit:
+            return False
+            
+        user.daily_generation_count += 1
+        user.save()
+        return True
+
+
+class DownloadPDFView(BaseDownloadView):
+    def get(self, request, resume_id):
+        resume = get_object_or_404(Resume, id=resume_id, user=request.user)
+        
+        if not self.check_and_update_limits(request.user):
+            return Response({"error": "Daily Limit Reached. Please upgrade or wait 24 hours."}, status=status.HTTP_403_FORBIDDEN)
+            
+        try:
+            pdf_bytes = generate_pdf(resume)
+            response = HttpResponse(pdf_bytes, content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename="{resume.slug}.pdf"'
+            return response
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class DownloadDOCXView(BaseDownloadView):
+    def get(self, request, resume_id):
+        resume = get_object_or_404(Resume, id=resume_id, user=request.user)
+        
+        if not request.user.is_premium:
+            return Response({"error": "Upgrade Required for DOCX downloads."}, status=status.HTTP_403_FORBIDDEN)
+            
+        if not self.check_and_update_limits(request.user):
+            return Response({"error": "Daily Limit Reached. Please upgrade or wait 24 hours."}, status=status.HTTP_403_FORBIDDEN)
+            
+        try:
+            docx_bytes = generate_docx(resume)
+            response = HttpResponse(docx_bytes, content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+            response['Content-Disposition'] = f'attachment; filename="{resume.slug}.docx"'
+            return response
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
